@@ -2,11 +2,14 @@
   "name": "wx-server-express",
   "type": "module",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "index",
   "types": "types/index.d.ts",
   "scripts": {
     "start": "node index.js",
-    "build": "rimraf dist/** && tsc",
+    "clean": "rimraf dist/** && rimraf dist-cjs/**",
+    "build": "yarn clean && yarn run build:esm && yarn run build:cjs && node scripts/create-entrypoints.js",
+    "build:esm": "tsc --outDir dist/ --composite false",
+    "build:cjs": "tsc --outDir dist-cjs/ --composite false -p tsconfig.cjs.json && node scripts/move-cjs-to-build.js && rimraf dist-cjs",
     "lint": "eslint src",
     "lint-fix": "eslint --fix src",
     "test:debug": "jest .*.spec.test.ts --testTimeout 50000 --maxWorkers=50%",
@@ -52,5 +55,19 @@
     "ts-node": "^10.9.1",
     "ts-pattern": "^5.0.6",
     "typescript": "^5.2.2"
-  }
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "require": "./index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/",
+    "index.cjs",
+    "index.js",
+    "index.d.ts"
+  ]
 }
