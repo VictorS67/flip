@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "target": "ES2016",
+    "module": "Node16",
+    "lib": [
+      "ES2016"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "checkJs": true,
+    "jsx": "preserve",
+    "declaration": true,
+    "declarationMap": false,
+    "sourceMap": false,
+    "outDir": "dist",
+    "declarationDir": "types",
+    "composite": true,
+    "downlevelIteration": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "strictPropertyInitialization": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts"
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  },
+  "typedocOptions": {
+    "entryPoints": []
+  }
+}

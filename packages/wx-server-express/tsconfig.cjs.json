@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "declarationDir": null
+  },
+  "exclude": ["node_modules", "dist", "test"]
+}
