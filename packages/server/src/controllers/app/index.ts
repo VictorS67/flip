@@ -18,8 +18,7 @@ const run = async (req: Request, res: Response, next: NextFunction) => {
       filter?: ProcessStreamEventFilter;
     };
 
-    const filePath: string =
-      appPath ?? config.encreFilePath ?? config.projectRoot;
+    const filePath: string = appPath ?? config.projectRoot;
     const options: ProcessOptions = { inputs, context };
 
     res.setHeader("Content-Type", "text/event-stream");

@@ -46,8 +46,6 @@ export class App {
       next();
     });
 
-    this.app.use(express.static(config.webRoot, { index: false }));
-
     this.app.get("/", (req, res) =>
       res.sendFile(config.webRoot + "/index.html")
     );
