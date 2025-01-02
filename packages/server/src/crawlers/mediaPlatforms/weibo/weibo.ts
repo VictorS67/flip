@@ -1,0 +1,138 @@
+// src/crawlers/mediaPlatforms/weibo/weibo.ts
+
+import pRetry from 'p-retry';
+import { BrowserContext, Page } from 'playwright';
+import { BaseLogin } from '../../base/baseLogin.js';
+import { 
+    findLoginQrcode, 
+    findQrcodeImgFromCanvas, 
+    showQrcode, 
+    getUserAgent, 
+    getMobileUserAgent, 
+    convertCookies, 
+    convertStrCookieToDict 
+} from '../../../utils/crawlers/crawler_util.js';
+import { logger } from '../../../utils/crawlers/logger.js';
+
+export class WeiboLogin extends BaseLogin {
+    private weiboSsoLoginUrl = 'https://passport.weibo.com/sso/signin?entry=miniblog&source=miniblog';
+
+    constructor(
+        private loginType: 'qrcode' | 'phone' | 'cookie',  
+        private browserContext: BrowserContext,         
+        private contextPage: Page,                     
+        private loginPhone: string = '',                
+        private cookieStr: string = ''                  
+    ) {
+        super();
+    }
+
+    public async begin(): Promise<void> {
+        logger.info('[WeiboLogin.begin] Begin login weibo ...');
+
+        if (this.loginType === 'qrcode') {
+            await this.loginByQrcode();
+        } else if (this.loginType === 'phone') {
+            await this.loginByMobile();
+        } else if (this.loginType === 'cookie') {
+            await this.loginByCookies();
+        } else {
+            throw new Error(
+                '[WeiboLogin.begin] Invalid Login Type. Currently only supported qrcode, phone, cookie.'
+            );
+        }
+    }
+
+    /**
+     * 等效于 Python 中的 check_login_state
+     * 这里用 p-retry 模拟 "tenacity"
+     */
+    private async checkLoginState(noLoggedInSession?: string): Promise<boolean> {
+        const currentCookie = await this.browserContext.cookies();
+        const [cookieList, cookieDict] = convertCookies(currentCookie);
+
+        if (cookieDict['SSOLoginState']) {
+            return true;
+        }
+
+        const currentWebSession = cookieDict['WBPSESS'];
+        if (currentWebSession && currentWebSession !== noLoggedInSession) {
+            return true;
+        }
+
+        // 否则还没登录
+        return false;
+    }
+
+    private async waitForLoginSuccess(noLoggedInSession?: string): Promise<void> {
+        await pRetry(async () => {
+            const loggedIn = await this.checkLoginState(noLoggedInSession);
+            if (!loggedIn) {
+                // 抛错会触发 p-retry 重试
+                throw new Error('WeiboLogin checkLoginState => not yet logged in');
+            }
+        }, {
+            retries: 600,              
+            factor: 1,                 
+            minTimeout: 1000,          
+            maxTimeout: 1000,          
+        });
+    }
+
+    public async loginByQrcode(): Promise<void> {
+        logger.info('[WeiboLogin.login_by_qrcode] Begin login weibo by qrcode ...');
+        await this.contextPage.goto(this.weiboSsoLoginUrl);
+
+        //Looking up the qrcode
+        const qrcodeImgSelector = "xpath=//img[@class='w-full h-full']";
+        const base64QrcodeImg = await findLoginQrcode(this.contextPage, qrcodeImgSelector);
+
+        if (!base64QrcodeImg) {
+            logger.info(
+                '[WeiboLogin.login_by_qrcode] login failed, have not found qrcode. Please check ....'
+            );
+            process.exit(1);
+        }
+
+        await showQrcode(base64QrcodeImg);
+        logger.info('[WeiboLogin.login_by_qrcode] Waiting for scan code login...');
+
+        const currentCookie = await this.browserContext.cookies();
+        const [_, cookieDict] = convertCookies(currentCookie);
+        const noLoggedInSession = cookieDict['WBPSESS'];
+
+        try {
+            await this.waitForLoginSuccess(noLoggedInSession);
+        } catch (error) {
+            logger.info('[WeiboLogin.login_by_qrcode] Login weibo failed by QRCode method...');
+            process.exit(1);
+        }
+
+        const waitRedirectSeconds = 5;
+        logger.info(
+            `[WeiboLogin.login_by_qrcode] Login successful, waiting ${waitRedirectSeconds}s for redirect...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, waitRedirectSeconds * 1000));
+    }
+
+    public async loginByMobile(): Promise<void> {
+        //TODO
+        logger.info('[WeiboLogin.login_by_mobile] Not implemented yet ...');
+    }
+
+    public async loginByCookies(): Promise<void> {
+        logger.info('[WeiboLogin.login_by_cookies] Begin login weibo by cookie ...');
+
+        const cookieDict = convertStrCookieToDict(this.cookieStr);
+        const cookiesToAdd = Object.entries(cookieDict).map(([key, value]) => {
+            return {
+                name: key,
+                value: value,
+                domain: '.weibo.cn',
+                path: '/',
+            };
+        });
+        await this.browserContext.addCookies(cookiesToAdd);
+        logger.info('[WeiboLogin.login_by_cookies] Cookies set successfully.');
+    }
+}
