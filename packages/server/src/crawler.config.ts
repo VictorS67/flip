@@ -191,4 +191,4 @@ export interface BaseConfig {
     // 中文字体文件路径
     FONT_PATH: "./docs/STZHONGS.TTF",
   };
-  
+  export default baseConfig; 

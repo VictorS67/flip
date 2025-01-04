@@ -1,32 +1,120 @@
-// src/controllers/WeiboController.ts
-
 import { Request, Response } from 'express';
 import { WeiboService } from '../../../services/crawlers/weibo/index.js';
-// import { logger } from '../utils/logger'; // 日志工具
 
 const weiboService = new WeiboService();
 
 export class WeiboController {
   /**
-   * 处理微博登录请求
-   * POST /api/weibo/login
+   * 手动登录
    */
-  public static async login(req: Request, res: Response) {
+  public async login(req: Request, res: Response): Promise<void> {
+    const { loginType, cookieStr } = req.body;
+
+    if (!loginType) {
+      res.status(400).json({ error: '登录方式 (loginType) 是必填的' });
+      return;
+    }
+
     try {
-      const { loginType, cookieStr } = req.body;
-
-      // 参数验证
-      if (!['qrcode', 'phone', 'cookie'].includes(loginType)) {
-        return res.status(400).json({ success: false, message: 'Invalid login type' });
-      }
-
-      const cookieString = await weiboService.loginWeibo(loginType, cookieStr);
-      res.json({ success: true, cookieString });
+      await weiboService.loginWeibo(loginType, cookieStr);
+      res.json({ message: '登录成功' });
     } catch (error) {
-    //   logger.error(`WeiboController: 登录失败 - ${(error as Error).message}`);
-      res.status((error as any).status || 500).json({ success: false, message: -1 });
+      res.status(500).json({ error: `登录失败: ${(error as Error).message}` });
     }
   }
 
-  //TODO: CRAWLER
+  /**
+   * 搜索微博
+   */
+  public async searchWeibo(req: Request, res: Response): Promise<void> {
+    const { keyword, page, autoLogin, loginType, cookieStr } = req.body;
+
+    if (!keyword) {
+      res.status(400).json({ error: '搜索关键词 (keyword) 是必填的' });
+      return;
+    }
+
+    try {
+      const results = await weiboService.searchWeibo(keyword, page || 1, autoLogin, loginType, cookieStr);
+      res.json({ data: results });
+    } catch (error) {
+      res.status(500).json({ error: `搜索失败: ${(error as Error).message}` });
+    }
+  }
+
+  /**
+   * 获取微博详情
+   */
+  public async getWeiboDetail(req: Request, res: Response): Promise<void> {
+    const { noteId, autoLogin, loginType, cookieStr } = req.body;
+
+    if (!noteId) {
+      res.status(400).json({ error: '微博 ID (noteId) 是必填的' });
+      return;
+    }
+
+    try {
+      const detail = await weiboService.getWeiboDetail(noteId, autoLogin, loginType, cookieStr);
+      res.json({ data: detail });
+    } catch (error) {
+      res.status(500).json({ error: `获取微博详情失败: ${(error as Error).message}` });
+    }
+  }
+
+  /**
+   * 获取用户信息
+   */
+  public async getCreatorInfo(req: Request, res: Response): Promise<void> {
+    const { creatorId, autoLogin, loginType, cookieStr } = req.body;
+
+    if (!creatorId) {
+      res.status(400).json({ error: '用户 ID (creatorId) 是必填的' });
+      return;
+    }
+
+    try {
+      const creatorInfo = await weiboService.getCreatorInfoByID(creatorId, autoLogin, loginType, cookieStr);
+      res.json({ data: creatorInfo });
+    } catch (error) {
+      res.status(500).json({ error: `获取用户信息失败: ${(error as Error).message}` });
+    }
+  }
+
+  /**
+   * 获取用户的所有帖子
+   */
+  public async getAllNotes(req: Request, res: Response): Promise<void> {
+    const { creatorId, crawlInterval, autoLogin, loginType, cookieStr } = req.body;
+
+    if (!creatorId) {
+      res.status(400).json({ error: '用户 ID (creatorId) 是必填的' });
+      return;
+    }
+
+    try {
+      const notes = await weiboService.getAllNotesByCreatorId(
+        creatorId,
+        crawlInterval || 1.0,
+        undefined,
+        autoLogin,
+        loginType,
+        cookieStr
+      );
+      res.json({ data: notes });
+    } catch (error) {
+      res.status(500).json({ error: `获取用户帖子失败: ${(error as Error).message}` });
+    }
+  }
+
+  /**
+   * 关闭浏览器实例
+   */
+  public async closeBrowser(req: Request, res: Response): Promise<void> {
+    try {
+      await weiboService.close();
+      res.json({ message: '浏览器已关闭' });
+    } catch (error) {
+      res.status(500).json({ error: `关闭浏览器失败: ${(error as Error).message}` });
+    }
+  }
 }
