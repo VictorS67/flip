@@ -84,7 +84,7 @@ export class WeiboController {
    * 获取用户的所有帖子
    */
   public async getAllNotes(req: Request, res: Response): Promise<void> {
-    const { creatorId, crawlInterval, autoLogin, loginType, cookieStr } = req.body;
+    const { creatorId, crawlInterval, autoLogin, loginType, cookieStr, maxCount } = req.body;
 
     if (!creatorId) {
       res.status(400).json({ error: '用户 ID (creatorId) 是必填的' });
@@ -98,7 +98,8 @@ export class WeiboController {
         undefined,
         autoLogin,
         loginType,
-        cookieStr
+        cookieStr,
+        maxCount
       );
       res.json({ data: notes });
     } catch (error) {
@@ -106,9 +107,6 @@ export class WeiboController {
     }
   }
 
-  /**
-   * 关闭浏览器实例
-   */
   public async closeBrowser(req: Request, res: Response): Promise<void> {
     try {
       await weiboService.close();

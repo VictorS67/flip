@@ -1,24 +1,9 @@
-// src/services/weibo/WeiboClient.ts
-
-/**
- * 声明：本代码仅供学习和研究目的使用。使用者应遵守以下原则：
- * 1. 不得用于任何商业用途。
- * 2. 使用时应遵守目标平台的使用条款和robots.txt规则。
- * 3. 不得进行大规模爬取或对平台造成运营干扰。
- * 4. 应合理控制请求频率，避免给目标平台带来不必要的负担。
- * 5. 不得用于任何非法或不当的用途。
- *
- * 详细许可条款请参阅项目根目录下的LICENSE文件。
- * 使用本代码即表示您同意遵守上述原则和LICENSE中的所有条款。
- */
-
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { BrowserContext, Page } from 'playwright';
 import { DataFetchError } from '../../../exceptions/crawler.js';      
 import { logger } from '../../../utils/crawlers/logger.js';                          
 import { SearchType } from './field.js';                                  
 import config from '../../../crawler.config.js';                          
-import { convertCookies, convertStrCookieToDict} from '../../../utils/crawlers/crawler_util.js'; 
 
 
 interface WeiboClientOptions {
@@ -50,7 +35,6 @@ export class WeiboClient {
  
   public async request(method: string, url: string, extra?: any): Promise<any> {
     const enableReturnResponse = extra?.return_response || false;
-    // axios 实例
     const client = axios.create({
       proxy: this.proxies,
       timeout: this.timeout * 1000, 
@@ -279,7 +263,7 @@ export class WeiboClient {
     let finalPath = '';
     for (let i = 0; i < subUrl.length; i++) {
       if (i === 1) {
-        finalPath += 'large/'; // 获取大图
+        finalPath += 'large/'; 
       } else if (i === subUrl.length - 1) {
         finalPath += subUrl[i];
       } else {
@@ -298,7 +282,7 @@ export class WeiboClient {
       logger.error(`[WeiboClient.getNoteImage] request ${finalUri} err, res:${resp.data}`);
       return null;
     }
-    return resp.data; // Buffer
+    return resp.data; 
   }
 
   public async getCreatorContainerInfo(creatorId: string): Promise<any> {
@@ -372,47 +356,9 @@ export class WeiboClient {
     };
     return this.get(uri, params);
   }
-
-  
-  public async getAllNotesByCreatorId(
-    creatorId: string,
-    containerId: string,
-    crawlInterval = 1.0,
-    callback?: (notes: any[]) => Promise<void>
-  ): Promise<any[]> {
-    const result: any[] = [];
-    let notesHasMore = true;
-    let sinceId = '';
-    let crawlerTotalCount = 0;
-
-    while (notesHasMore) {
-      const notesRes = await this.getNotesByCreator(creatorId, containerId, sinceId);
-      if (!notesRes) {
-        logger.error(`[WeiboClient.getAllNotesByCreatorId] maybe banned, cannot access data`);
-        break;
-      }
-      sinceId = notesRes?.cardlistInfo?.since_id || '0';
-      if (!notesRes.cards) {
-        logger.info(`[WeiboClient.getAllNotesByCreatorId] No 'cards' key found in response: ${JSON.stringify(notesRes)}`);
-        break;
-      }
-      const notes = notesRes.cards;
-      logger.info(`[WeiboClient.getAllNotesByCreatorId] user_id:${creatorId}, notes.length = ${notes.length}`);
-
-      const filteredNotes = notes.filter((note: any) => note.card_type === 9);
-      if (callback) {
-        await callback(filteredNotes);
-      }
-      await sleep(crawlInterval * 1000);
-      result.push(...filteredNotes);
-
-      crawlerTotalCount += 10;
-      const total = notesRes?.cardlistInfo?.total || 0;
-      notesHasMore = total > crawlerTotalCount;
-    }
-    return result;
-  }
+ 
 }
+
 function sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
 }

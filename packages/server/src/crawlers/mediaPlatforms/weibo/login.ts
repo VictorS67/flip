@@ -1,5 +1,3 @@
-// src/crawlers/mediaPlatforms/weibo/weibo.ts
-
 import pRetry from 'p-retry';
 import { BrowserContext, Page } from 'playwright';
 import { BaseLogin } from '../../base/baseLogin.js';
@@ -43,10 +41,6 @@ export class WeiboLogin extends BaseLogin {
         }
     }
 
-    /**
-     * 等效于 Python 中的 check_login_state
-     * 这里用 p-retry 模拟 "tenacity"
-     */
     private async checkLoginState(noLoggedInSession?: string): Promise<boolean> {
         const currentCookie = await this.browserContext.cookies();
         const [cookieList, cookieDict] = convertCookies(currentCookie);
@@ -60,7 +54,6 @@ export class WeiboLogin extends BaseLogin {
             return true;
         }
 
-        // 否则还没登录
         return false;
     }
 
@@ -68,7 +61,6 @@ export class WeiboLogin extends BaseLogin {
         await pRetry(async () => {
             const loggedIn = await this.checkLoginState(noLoggedInSession);
             if (!loggedIn) {
-                // 抛错会触发 p-retry 重试
                 throw new Error('WeiboLogin checkLoginState => not yet logged in');
             }
         }, {
@@ -83,7 +75,6 @@ export class WeiboLogin extends BaseLogin {
         logger.info('[WeiboLogin.login_by_qrcode] Begin login weibo by qrcode ...');
         await this.contextPage.goto(this.weiboSsoLoginUrl);
 
-        //Looking up the qrcode
         const qrcodeImgSelector = "xpath=//img[@class='w-full h-full']";
         const base64QrcodeImg = await findLoginQrcode(this.contextPage, qrcodeImgSelector);
 
