@@ -1,11 +1,11 @@
 import { BrowserContext } from 'playwright';
 
-export abstract class BaseApiClient{
-  abstract request(
+export interface BaseApiClient {
+  request(
     method: string,
     url: string,
     options?: Record<string, any>
   ): Promise<any>;
 
-  abstract updateCookies(browserContext: BrowserContext): Promise<void>;
+  updateCookies(creatorId:string, browserContext: BrowserContext): Promise<void>;
 }

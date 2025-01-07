@@ -13,16 +13,16 @@ export interface PlaywrightProxy {
   }
 
 
-export abstract class BaseCrawler {
+export interface BaseCrawler {
     /**
      * start crawler
      */
-    abstract start(): Promise<void>;
+    start(): Promise<void>;
   
     /**
      * search
      */
-    abstract search(): Promise<void>;
+    search(): Promise<void>;
   
     /**
      * launch browser
@@ -31,7 +31,7 @@ export abstract class BaseCrawler {
      * @param userAgent - user agent
      * @param headless - headless mode
      */
-    abstract launchBrowser(
+    launchBrowser(
       chromium: BrowserType,
       playwrightProxy?: PlaywrightProxy,
       userAgent?: string,

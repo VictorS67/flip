@@ -1,17 +1,17 @@
 // src/routes/WeiboRoutes.ts
 
 import { Router } from 'express';
-import { WeiboController } from '../../../controllers/crawlers/weibo/index.js';
+import { login, getAllNotes, closeBrowser } from '../../../controllers/crawlers/weibo/index.js';
 
 const router = Router();
-const weiboController = new WeiboController();
 
-//Test login
-router.post('/login', weiboController.login.bind(weiboController));
+// Test login
+router.post('/login', login);
 
-router.post('/crawler', weiboController.getAllNotes.bind(weiboController));
+// Crawler: Get all notes
+router.post('/crawler', getAllNotes);
 
-router.post('/logout', weiboController.closeBrowser.bind(weiboController));
-
+// Logout: Close browser
+router.post('/logout', closeBrowser);
 
 export default router;

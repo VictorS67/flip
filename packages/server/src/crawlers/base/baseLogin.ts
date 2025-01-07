@@ -1,13 +1,13 @@
 
 
 
-export abstract class BaseLogin {
-    abstract begin(): Promise<void>;
+export interface BaseLogin {
+    begin(): Promise<void>;
   
-    abstract loginByQrcode(): Promise<void>;
+    loginByQrcode(): Promise<void>;
   
-    // abstract loginByMobile(): Promise<void>;
+    loginByMobile(): Promise<void>;
   
-    // abstract loginByCookies(): Promise<void>;
+    loginByCookies(): Promise<void>;
   }
   

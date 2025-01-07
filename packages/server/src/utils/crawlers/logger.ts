@@ -1,16 +1,29 @@
-import { createLogger, format, transports } from 'winston';
+const levels = ['info', 'warn', 'error', 'debug'];
 
-const logger = createLogger({
-    level: 'info',
-    format: format.combine(
-        format.timestamp(),
-        format.printf(({ timestamp, level, message }) => `${timestamp} [${level.toUpperCase()}]: ${message}`)
-    ),
-    transports: [
-        new transports.Console(),
-        new transports.File({ filename: 'logs/error.log', level: 'error' }),
-        new transports.File({ filename: 'logs/combined.log' }),
-    ],
-});
+interface LogFunction {
+    (level: string, message: string): void;
+}
+
+function log(level: string, message: string): void {
+    if (!levels.includes(level)) {
+        throw new Error(`Invalid log level: ${level}`);
+    }
+    const timestamp = new Date().toISOString(); 
+    console.log(`${timestamp} [${level.toUpperCase()}]: ${message}`);
+}
+
+interface Logger {
+    info: (message: string) => void;
+    warn: (message: string) => void;
+    error: (message: string) => void;
+    debug: (message: string) => void;
+}
+
+const logger: Logger = {
+    info: (message: string) => log('info', message),
+    warn: (message: string) => log('warn', message),
+    error: (message: string) => log('error', message),
+    debug: (message: string) => log('debug', message),
+};
 
 export { logger };

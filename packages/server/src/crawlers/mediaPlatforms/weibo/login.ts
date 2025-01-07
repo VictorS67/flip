@@ -3,16 +3,13 @@ import { BrowserContext, Page } from 'playwright';
 import { BaseLogin } from '../../base/baseLogin.js';
 import { 
     findLoginQrcode, 
-    findQrcodeImgFromCanvas, 
     showQrcode, 
-    getUserAgent, 
-    getMobileUserAgent, 
     convertCookies, 
     convertStrCookieToDict 
 } from '../../../utils/crawlers/crawler_util.js';
 import { logger } from '../../../utils/crawlers/logger.js';
 
-export class WeiboLogin extends BaseLogin {
+export class WeiboLogin implements BaseLogin {
     private weiboSsoLoginUrl = 'https://passport.weibo.com/sso/signin?entry=miniblog&source=miniblog';
 
     constructor(
@@ -22,7 +19,6 @@ export class WeiboLogin extends BaseLogin {
         private loginPhone: string = '',                
         private cookieStr: string = ''                  
     ) {
-        super();
     }
 
     public async begin(): Promise<void> {

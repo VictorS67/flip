@@ -1,6 +1,7 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { BrowserContext, Page } from 'playwright';
 import { DataFetchError } from '../../../exceptions/crawler.js';      
+import { BaseApiClient } from '../../base/baseApiClient.js';
 import { logger } from '../../../utils/crawlers/logger.js';                          
 import { SearchType } from './field.js';                                  
 import config from '../../../crawler.config.js';                          
@@ -14,7 +15,7 @@ interface WeiboClientOptions {
   cookieDict: Record<string, string>; 
 }
 
-export class WeiboClient {
+export class WeiboClient implements BaseApiClient {
   private proxies: any;
   private timeout: number;
   private headers: Record<string, string>;
@@ -249,7 +250,7 @@ export class WeiboClient {
       const noteDetail = renderDataDict[0]?.status;
       return { mblog: noteDetail };
     } else {
-      logger.info('[WeiboClient.getNoteInfoById] 未找到 $render_data 的值');
+      logger.info('[WeiboClient.getNoteInfoById] failed to find the value of $render_data');
       return {};
     }
   }
