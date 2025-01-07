@@ -4,7 +4,6 @@ import { DataFetchError } from '../../../exceptions/crawler.js';
 import { BaseApiClient } from '../../base/baseApiClient.js';
 import { logger } from '../../../utils/crawlers/logger.js';                          
 import { SearchType } from './field.js';                                  
-import config from '../../../crawler.config.js';                          
 
 
 interface WeiboClientOptions {
@@ -211,10 +210,6 @@ export class WeiboClient implements BaseApiClient {
     commentList: any[],
     callback?: (nid: string, cList: any[]) => Promise<void>
   ): Promise<any[]> {
-    if (!config.ENABLE_GET_SUB_COMMENTS) {
-      logger.info('[WeiboClient.getCommentsAllSubComments] sub_comment mode not enabled');
-      return [];
-    }
 
     const resSubComments: any[] = [];
     for (const comment of commentList) {
