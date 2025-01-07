@@ -22,8 +22,7 @@
     "p-retry": "^6.2.0",
     "playwright": "^1.49.1",
     "sharp": "^0.33.5",
-    "uuid": "^11.0.3",
-    "winston": "^3.17.0"
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.20.2",
