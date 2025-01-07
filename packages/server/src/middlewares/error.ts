@@ -1,4 +1,4 @@
-import express from "express";
+import express from 'express';
 
 export default async function middleware(
   err: any,
@@ -7,5 +7,5 @@ export default async function middleware(
   _next: express.NextFunction
 ) {
   console.log(`[ERROR] ${err.toString()}`);
-  res.status(500).send({ status: "error", reason: "internal-error" });
+  res.status(500).send({ status: 'error', reason: 'internal-error' });
 }

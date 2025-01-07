@@ -1,5 +1,5 @@
 export function getErrorMessage(error: unknown) {
-  if (typeof error === "string") {
+  if (typeof error === 'string') {
     return error;
   }
 

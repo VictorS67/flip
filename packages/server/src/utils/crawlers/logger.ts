@@ -1,8 +1,5 @@
 const levels = ['info', 'warn', 'error', 'debug'];
 
-interface LogFunction {
-    (level: string, message: string): void;
-}
 
 function log(level: string, message: string): void {
     if (!levels.includes(level)) {
