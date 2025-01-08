@@ -1,10 +1,4 @@
 import { BrowserContext, BrowserType } from 'playwright';
-
-// interface PlaywrightProxy {
-//   server: string;
-//   bypass?: string[];
-// }
-
 export interface PlaywrightProxy {
     host: string;
     port: number;

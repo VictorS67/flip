@@ -1,6 +1,3 @@
-
-
-
 export interface BaseLogin {
     begin(): Promise<void>;
   
