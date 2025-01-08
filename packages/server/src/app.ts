@@ -1,12 +1,12 @@
-import fs from "node:fs";
-import bodyParser from "body-parser";
-import cors from "cors";
-import express from "express";
-import rateLimit from "express-rate-limit";
+import fs from 'node:fs';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import express from 'express';
+import rateLimit from 'express-rate-limit';
 
-import config from "./config.js";
-import APIRouter from "./routes/index.js";
-import errorMiddleware from "./middlewares/error.js";
+import config from './config.js';
+import APIRouter from './routes/index.js';
+import errorMiddleware from './middlewares/error.js';
 
 export class App {
   app: express.Application;
@@ -16,7 +16,7 @@ export class App {
   }
 
   async configure() {
-    this.app.disable("x-powered-by");
+    this.app.disable('x-powered-by');
 
     this.app.use(cors());
 
@@ -35,29 +35,29 @@ export class App {
 
     this.app.use(
       bodyParser.raw({
-        type: "application/actual-sync",
+        type: 'application/actual-sync',
         limit: `${config.upload!.fileSizeSyncLimitMB}mb`,
       })
     );
 
     this.app.use((req, res, next) => {
-      res.set("Cross-Origin-Opener-Policy", "same-origin");
-      res.set("Cross-Origin-Embedder-Policy", "require-corp");
+      res.set('Cross-Origin-Opener-Policy', 'same-origin');
+      res.set('Cross-Origin-Embedder-Policy', 'require-corp');
       next();
     });
 
-    this.app.get("/", (req, res) =>
-      res.sendFile(config.webRoot + "/index.html")
+    this.app.get('/', (req, res) =>
+      res.sendFile(config.webRoot + '/index.html')
     );
 
-    this.app.use("/api/v1", APIRouter);
+    this.app.use('/api/v1', APIRouter);
 
     this.app.use(errorMiddleware);
   }
 }
 
 function parseHTTPSConfig(value: string) {
-  if (value.startsWith("-----BEGIN")) {
+  if (value.startsWith('-----BEGIN')) {
     return value;
   }
   return fs.readFileSync(value);
@@ -71,7 +71,7 @@ export default async function run() {
   await app.configure();
 
   if (config.https) {
-    const https = await import("node:https");
+    const https = await import('node:https');
     const httpsOptions = {
       ...config.https,
       key: parseHTTPSConfig(config.https.key),
@@ -84,7 +84,7 @@ export default async function run() {
     app.app.listen(config.port, config.hostname);
   }
 
-  console.log("Listening on " + config.hostname + ":" + config.port + "...");
+  console.log('Listening on ' + config.hostname + ':' + config.port + '...');
 }
 
 export function getInstance(): App | undefined {

@@ -1,12 +1,12 @@
-import { ServerOptions } from "https";
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import dotenv from "dotenv";
-import { strToNum } from "./utils/safeTypes.js";
+import { ServerOptions } from 'https';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import dotenv from 'dotenv';
+import { strToNum } from './utils/safeTypes.js';
 
 export interface Config {
-  mode: "test" | "development";
+  mode: 'test' | 'development';
   projectRoot: string;
   port: number;
   hostname: string;
@@ -23,10 +23,10 @@ export interface Config {
 
 const projectRoot: string = path.dirname(fileURLToPath(import.meta.url));
 
-function parseJSON(path: string, allowMissing = false) {
+function parseJSON(filePath: string, allowMissing = false) {
   let text: string | undefined;
   try {
-    text = fs.readFileSync(path, "utf8");
+    text = fs.readFileSync(filePath, 'utf8');
   } catch (e) {
     if (allowMissing) {
       return {};
@@ -36,20 +36,21 @@ function parseJSON(path: string, allowMissing = false) {
   return JSON.parse(text);
 }
 
-dotenv.config({ path: path.join(projectRoot, ".env") });
+
+dotenv.config({ path: path.join(projectRoot, '.env') });
 
 let userConfig: Config;
 if (process.env.FLIP_CONFIG_PATH) {
   userConfig = parseJSON(process.env.FLIP_CONFIG_PATH);
 } else {
-  let configFile = path.join(projectRoot, "flip.config.json");
+  let configFile = path.join(projectRoot, 'flip.config.json');
 
   userConfig = parseJSON(configFile, true);
 }
 
-let defaultConfig: Omit<Config, "mode"> = {
+let defaultConfig: Omit<Config, 'mode'> = {
   port: 5127,
-  hostname: "::",
+  hostname: '::',
   webRoot: projectRoot,
   upload: {
     fileSizeSyncLimitMB: 20,
@@ -59,9 +60,9 @@ let defaultConfig: Omit<Config, "mode"> = {
 };
 
 let config: Config;
-if (process.env.NODE_ENV === "test") {
+if (process.env.NODE_ENV === 'test') {
   config = {
-    mode: "test",
+    mode: 'test',
     ...defaultConfig,
   };
 } else {
@@ -69,7 +70,7 @@ if (process.env.NODE_ENV === "test") {
     ...defaultConfig,
     ...(userConfig || {}),
   };
-  config.mode = config.mode ? config.mode : "development";
+  config.mode = config.mode ? config.mode : 'development';
 }
 
 const finalConfig: Config = {
@@ -83,8 +84,8 @@ const finalConfig: Config = {
   https:
     process.env.FLIP_HTTPS_KEY && process.env.FLIP_HTTPS_CERT
       ? {
-          key: process.env.FLIP_HTTPS_KEY.replace(/\\n/g, "\n"),
-          cert: process.env.FLIP_HTTPS_CERT.replace(/\\n/g, "\n"),
+          key: process.env.FLIP_HTTPS_KEY.replace(/\\n/g, '\n'),
+          cert: process.env.FLIP_HTTPS_CERT.replace(/\\n/g, '\n'),
           ...(config.https || {}),
         }
       : config.https,

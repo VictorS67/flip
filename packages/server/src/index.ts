@@ -1,4 +1,4 @@
-import run from "./app.js";
+import run from './app.js';
 
 run().catch((err) => {
   console.log(`[ERROR] ${err.toString()}`);

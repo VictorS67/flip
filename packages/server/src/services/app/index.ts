@@ -1,15 +1,15 @@
-import { TextDecoder } from "node:util";
+import { TextDecoder } from 'node:util';
 import {
   BaseGraph,
   createProcessor,
   loadGraph,
   ProcessOptions,
-} from "@encrejs/api";
-import { ProcessStreamEventFilter } from "@encrejs/api/streaming";
-import { StatusCodes } from "http-status-codes";
+} from '@encrejs/api';
+import { ProcessStreamEventFilter } from '@encrejs/api/streaming';
+import { StatusCodes } from 'http-status-codes';
 
-import { InternalError } from "../../exceptions/internal.js";
-import { getErrorMessage } from "../../utils/getErrorMessages.js";
+import { InternalError } from '../../exceptions/internal.js';
+import { getErrorMessage } from '../../utils/getErrorMessages.js';
 
 async function _getGraph(filePath: string): Promise<BaseGraph> {
   try {
@@ -59,7 +59,7 @@ async function* run(
 
     const runPromise = processor.run();
 
-    const decoder = new TextDecoder("utf-8");
+    const decoder = new TextDecoder('utf-8');
     for await (const chunk of processor.sseStream(filter ?? defaultFilter)) {
       const text = decoder.decode(chunk, { stream: true });
 
