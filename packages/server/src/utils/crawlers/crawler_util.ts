@@ -184,18 +184,31 @@ export function getMobileUserAgent(): string {
  * @param cookies Playwright 获取的 Cookie 数组
  * @returns [cookie string, cookie dict]
  */
-export function convertCookies(cookies: Cookie[] | null | undefined): [ Record<string, string>] {
+export function convertCookies(cookies: Cookie[] | null | undefined): [string, Record<string, string>] {
+    // if (!cookies || cookies.length === 0) {
+    //     return [{}];
+    // }
+
+    // const cookieDict: Record<string, string> = {};
+
+    // cookies.forEach(cookie => {
+    //     cookieDict[cookie.name] = cookie.value;
+    // });
+
+    // return [cookieDict];
+
     if (!cookies || cookies.length === 0) {
-        return [{}];
+        return ["", {}];
     }
 
+    const cookiesStr = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
     const cookieDict: Record<string, string> = {};
 
-    cookies.forEach(cookie => {
+    for (const cookie of cookies) {
         cookieDict[cookie.name] = cookie.value;
-    });
+    }
 
-    return [cookieDict];
+    return [cookiesStr, cookieDict];
 }
 
 /**
@@ -205,20 +218,36 @@ export function convertCookies(cookies: Cookie[] | null | undefined): [ Record<s
  */
 export function convertStrCookieToDict(cookieStr: string): Record<string, string> {
     const cookieDict: Record<string, string> = {};
+
     if (!cookieStr) {
         return cookieDict;
     }
 
-    const cookies = cookieStr.split(';');
-    for (const cookie of cookies) {
-        const [k, v] = cookie.trim().split('=');
-        if (k && v) {
-            cookieDict[k] = v;
+    // Split cookies by ';' and process each one
+    for (const cookie of cookieStr.split(';')) {
+        const trimmedCookie = cookie.trim();
+        if (!trimmedCookie) {
+            continue;
         }
+
+        const cookieList = trimmedCookie.split('=');
+        if (cookieList.length !== 2) {
+            continue;
+        }
+
+        let cookieValue = cookieList[1];
+
+        // Ensure the value is a string (if it's an array, join it)
+        if (Array.isArray(cookieValue)) {
+            cookieValue = cookieValue.join('');
+        }
+
+        cookieDict[cookieList[0]] = cookieValue;
     }
 
     return cookieDict;
 }
+
 
 /**
  * 匹配交互信息数量
@@ -349,3 +378,5 @@ export function extractUrlParamsToDict(url: string): Record<string, string> {
 
     return urlParamsDict;
 }
+
+

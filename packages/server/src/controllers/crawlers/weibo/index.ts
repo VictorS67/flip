@@ -101,6 +101,12 @@ export async function getAllNotes(req: Request, res: Response): Promise<void> {
   } catch (error) {
     res.status(500).json({ error: `获取用户帖子失败: ${(error as Error).message}` });
   }
+  // try{
+  //   const creatorInfo = await weiboService.getCreatorInfoByID(creatorId);
+  //   res.json({creatorinfo: creatorInfo});
+  // } catch (error) {
+  //   res.status(500).json({ error: `获取用户详情失败: ${(error as Error).message}` });
+  // }
 }
 
 
